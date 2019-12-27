@@ -2,13 +2,21 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/xenial64"
-
   config.vm.network "private_network", ip: "192.168.50.25"
 
   config.vm.provider "virtualbox" do |vb|
+    config.vm.box = "ubuntu/xenial64"
     vb.memory = 4096
     vb.cpus = 2
+  end
+
+  config.vm.provider "vmware_fusion" do |vmw|
+    config.vm.box = "bento/ubuntu-16.04"
+    vmw.gui = false
+    vmw.vmx["ethernet0.virtualDev"] = "vmxnet3"
+    vmw.vmx["memsize"] = 4096
+    vmw.vmx["numvcpus"] = 2
+    vmw.whitelist_verified = true
   end
 
   config.vm.provision "shell", inline: <<-SHELL
@@ -22,5 +30,6 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.synced_folder "../st2", "/home/vagrant/local/st2", type: "rsync", rsync__exclude: ["virtualenv/"]
+  config.vm.synced_folder "/Users/zach/Repos/packs_dev/", "/opt/stackstorm/packs_dev"
 end
 
